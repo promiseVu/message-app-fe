@@ -12,11 +12,7 @@ definePageMeta({
 function handleLogout() {
   useLogout()
 }
-onMounted(() => {
-  if(!auth.value.isLogin){
-    router.push('login')
-  }
-})
+
 </script>
 <template lang="html">
 <div class="flex flex-col h-full">

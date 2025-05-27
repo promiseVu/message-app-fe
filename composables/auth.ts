@@ -17,11 +17,38 @@ export const useLogin = (
   const authCookie = useCookie("accessToken", {
     expires,
   });
-  authCookie.value = accessToken
+  authCookie.value = accessToken;
   const auth = useAuthentication();
   auth.value.accessToken = accessToken;
   auth.value.userData = userData;
   auth.value.isLogin = true;
+};
+
+export const useAuthorization = async (options = { force: false }) => {
+  const accessToken = useCookie("accessToken");
+  if (!accessToken.value && accessToken.value !== "") {
+    return false;
+  }
+  const auth = useAuthentication();
+  if (auth.value.isLogin && !options.force) {
+    return true;
+  }
+  try {
+    const response = await $fetch("/api/auth/verify");
+    if (response) {
+      const auth = useAuthentication();
+      auth.value.accessToken = accessToken.value!;
+      auth.value.userData = response.userData;
+      auth.value.isLogin = true;
+      return true;
+    } else {
+      return false;
+    }
+  } catch (error) {
+    console.error("Authorization error:", error)
+    await useLogout()
+    return false;
+  }
 };
 
 export const useLogout = () => {
@@ -30,5 +57,6 @@ export const useLogout = () => {
   auth.value.userData = null;
   auth.value.isLogin = false;
   const authCookie = useCookie("accessToken");
-  authCookie.value = "";
+  authCookie.value = null;
+  return navigateTo("/login");
 };

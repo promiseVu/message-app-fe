@@ -1,10 +1,10 @@
-import { axiosInstance } from "~/server/utils/axios"
-
+import { useAxiosProxy } from "~/server/utils/axios";
 export default defineEventHandler(async (event) => {
-    try{
-        const response = await axiosInstance().get('api/conversations')
-        return response.data
-    }catch(error){
-        console.error('Lỗi khi gọi api', error)
-    }
-})
+  try {
+    const response = await useAxiosProxy().get("api/conversations");
+    return response.data;
+  } catch (error: any) {
+    setResponseStatus(event, error.status);
+    return error;
+  }
+});

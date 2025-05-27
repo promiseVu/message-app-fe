@@ -1,32 +1,64 @@
-import axios, { AxiosInstance, AxiosResponse, AxiosError } from 'axios'
+import axios, { AxiosInstance, AxiosResponse, AxiosError } from "axios"; 
+interface AxiosOptions {
+   "Content-Type"?: string;
+  Accept?: string;
+  Authorization?: string;
+}
 
-export const axiosInstance = (option?: any, event?: any): AxiosInstance => {
+// environment variables
+const config = useRuntimeConfig();
+const BASE_URL = config.private.baseUrl || "https://localhost:8080";
+const ENVIRONMENT = config.public.environment || "development";
+const DEFAULT_TIMEOUT = 10000;
+
+// Create instance of Axios with default configuration
+export const useAxiosProxy = (options: AxiosOptions = {}): AxiosInstance => {
   const instance = axios.create({
-    baseURL: useRuntimeConfig() .private.baseUrl || 'https://localhost:8080',
+    baseURL: BASE_URL,
     headers: {
-      'Content-Type': option?.['Content-Type'] || 'application/json',
-      'Accept': option?.['Accept'] || 'application/json',
-    //   'Authorization': `Bearer ${config.public.apiToken}`,
+      "Content-Type": options['Content-Type'] || "application/json",
+      Accept: options.Accept || "application/json",
+      Authorization: options.Authorization,
     },
-    timeout: 10000,
-  })
+    timeout: DEFAULT_TIMEOUT,
+  });
 
+  // Interceptor for request
   instance.interceptors.request.use(
     (request) => {
-      console.log('Sending request to:', request)
-      return request
+      if (ENVIRONMENT === "development") {
+        console.log("Request url", request.url);
+      }
+      return request;
     },
-  )
+    (error) => {
+      if (ENVIRONMENT === "development") {
+        console.error("Error Request", error.message);
+      }
 
+      return Promise.reject(error);
+    }
+  );
+
+  // Interceptor for response
   instance.interceptors.response.use(
     (response: AxiosResponse) => {
-      console.log('Response received:', response.data)
-      return response
+      if (process.env.NODE_ENV === "development") {
+        console.log("Response:", response.data);
+      }
+      return response;
     },
-    (error: AxiosError) => {
-      console.error('Response error:', error.response?.status, error.response?.data)
+    (error) => {
+      if (process.env.NODE_ENV === "development") {
+        console.log("Error Response:", error.response);
+      }
+      return Promise.reject({
+        status: error.response?.status || 500,
+        message: error.response?.data || "Server Error",
+        url: error.config?.url,
+      });
     }
-  )
+  );
 
-  return instance
-}
+  return instance;
+};

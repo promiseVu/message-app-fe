@@ -1,4 +1,3 @@
-
 import { ofetch } from 'ofetch'
 export default defineNuxtPlugin((_nuxtApp) => {
   // @ts-ignore
