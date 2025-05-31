@@ -43,13 +43,13 @@ export const useAxiosProxy = (options: AxiosOptions = {}): AxiosInstance => {
   // Interceptor for response
   instance.interceptors.response.use(
     (response: AxiosResponse) => {
-      if (process.env.NODE_ENV === "development") {
+      if (ENVIRONMENT === "development") {
         console.log("Response:", response.data);
       }
       return response;
     },
     (error) => {
-      if (process.env.NODE_ENV === "development") {
+      if (ENVIRONMENT === "development") {
         console.log("Error Response:", error.response);
       }
       return Promise.reject({

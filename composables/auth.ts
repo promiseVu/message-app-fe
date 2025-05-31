@@ -1,3 +1,5 @@
+import type { UserInfo } from "~/types/auth";
+
 export const useAuthentication = () => {
   return useState<{ accessToken: string; isLogin: boolean; userData: any }>(
     "auth",
@@ -10,8 +12,8 @@ export const useAuthentication = () => {
 };
 
 export const useLogin = (
-  userData: any,
-  accessToken: any,
+  userData: UserInfo,
+  accessToken: string,
   expires = new Date(Date.now() + 60 * 60 * 1000)
 ) => {
   const authCookie = useCookie("accessToken", {
@@ -58,5 +60,5 @@ export const useLogout = () => {
   auth.value.isLogin = false;
   const authCookie = useCookie("accessToken");
   authCookie.value = null;
-  return navigateTo("/login");
+  return navigateTo({name: "auth-method", params: { method: "login" } });
 };

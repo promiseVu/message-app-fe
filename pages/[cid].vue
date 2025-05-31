@@ -9,7 +9,7 @@ const text = ref<string>();
 <template lang="html">
   <div class="flex flex-col h-full">
     <header class="flex justify-between items-center px-10 h-16 bg-slate-600">
-      <Icon @click="router.back()" name="material-symbols-light:arrow-back-ios-rounded" size="30" />
+      <Icon @click="router.back()" name="material-symbols-light:arrow-back-ios-rounded" :size="30" />
       <h2 class="text-lg">{{ route.params.cid }}</h2>
       <Icon
         name="material-symbols-light:format-list-bulleted-rounded"
