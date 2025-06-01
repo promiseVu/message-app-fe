@@ -19,6 +19,7 @@ export default defineNuxtConfig({
     public: {
       baseUrl: process.env.FRONTEND_URL || "http://localhost:3000",
       environment: process.env.ENVIRONMENT || "development",
+      socketUrl: process.env.BACKEND_URL || "http://localhost:8080",
     },
   },
 });
