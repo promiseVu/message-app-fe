@@ -46,6 +46,7 @@ function handleRegister() {
 function changeForm() {
   formState.value = formState.value === "login" ? "register" : "login";
 }
+
 </script>
 <template lang="html">
   <div class="h-full">
