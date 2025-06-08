@@ -25,6 +25,7 @@ export default defineNuxtPlugin((nuxtApp) => {
 
       socket.value.connect();
       registerEvents(socket.value);
+      console.log("Socket connected", socket.value);
     } catch (error) {
       console.error("Failed to create socket connection:", error);
     }
@@ -37,9 +38,11 @@ export default defineNuxtPlugin((nuxtApp) => {
 
   // Theo dõi thay đổi token để reconnect nếu cần
   watch(token, (newToken) => {
+    console.log(newToken);
     if (newToken && !socket.value) {
       connectWebsocket();
     } else if (!newToken && socket.value) {
+      console.log("Disconnect socket");
       socket.value.disconnect();
       socket.value = null;
     }

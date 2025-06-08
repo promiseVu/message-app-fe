@@ -8,6 +8,7 @@ export default defineNuxtConfig({
     "@nuxt/image",
     "@nuxtjs/tailwindcss",
     "@element-plus/nuxt",
+    "@pinia/nuxt",
   ],
   image: {
     dir: "assets/images",

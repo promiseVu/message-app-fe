@@ -5,7 +5,7 @@ export class SocketConnection {
   socket: ReturnType<typeof io> | undefined;
   handleConnection = () => {
     if (!this.socket) {
-       this.socket = io(this.SOCKET_URL);
+      this.socket = io(this.SOCKET_URL);
     }
   };
 }
