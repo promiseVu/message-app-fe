@@ -1,7 +1,6 @@
-<script setup lang="ts">
-</script>
+<script setup lang="ts"></script>
 <template lang="html">
-  <main class="flex items-center justify-center bg-black">
+  <main class="flex items-center justify-center">
     <div class="w-[768px] bg-white h-[100svh]">
       <slot />
     </div>

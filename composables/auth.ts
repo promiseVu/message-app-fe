@@ -36,19 +36,19 @@ export const useAuthorization = async (options = { force: false }) => {
     return true;
   }
   try {
-    const response = await $fetch("/api/auth/verify");
-    if (response) {
+    const userData = await $fetch("/api/auth/verify");
+    if (userData) {
       const auth = useAuthentication();
       auth.value.accessToken = accessToken.value!;
-      auth.value.userData = response.userData;
+      auth.value.userData = userData;
       auth.value.isLogin = true;
       return true;
     } else {
       return false;
     }
   } catch (error) {
-    console.error("Authorization error:", error)
-    await useLogout()
+    console.error("Authorization error:", error);
+    await useLogout();
     return false;
   }
 };
@@ -60,5 +60,5 @@ export const useLogout = () => {
   auth.value.isLogin = false;
   const authCookie = useCookie("accessToken");
   authCookie.value = null;
-  return navigateTo({name: "auth-method", params: { method: "login" } });
+  return navigateTo({ name: "auth-method", params: { method: "login" } });
 };
