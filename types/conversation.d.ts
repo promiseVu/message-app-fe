@@ -5,6 +5,7 @@ export interface Conversation {
   members: Member[];
   createdAt: string;
   updatedAt: string;
+  lastMessage: Message;
 }
 
 export interface Member {
