@@ -9,6 +9,7 @@ const route = useRoute();
 
 definePageMeta({
   requireAuth: false,
+  layout: 'blank',
   validate: async (route): Promise<boolean> => {
     return ["login", "register"].includes(route.params.method as string);
   },

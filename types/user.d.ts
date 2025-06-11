@@ -5,6 +5,7 @@ export interface User {
   lastName: string;
   password: string;
   isVerified: boolean;
+  avatar?: string;
   createdAt: string;
   updatedAt: string;
 }

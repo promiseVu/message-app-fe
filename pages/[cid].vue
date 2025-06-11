@@ -3,6 +3,7 @@ import type { Message } from "~/types/message";
 
 definePageMeta({
   requireAuth: true,
+  layout: "blank",
 });
 
 const route = useRoute();
@@ -86,6 +87,7 @@ watch(
 
 // Scroll to bottom on mount
 onMounted(() => {
+  messageStore.currentConversationId = conversationId.value;
   nextTick(() => {
     scrollToBottom();
   });

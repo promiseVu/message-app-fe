@@ -5,7 +5,6 @@ export const useMessageStore = defineStore("useMessageStore", () => {
   const listCoversations = ref<Conversation[]>([]);
   const conversationCache = reactive(new Map<string, Message[]>());
   const socket = computed(() => useNuxtApp().$socket.value);
-  console.log("socket", socket);
 
   const setListCoversations = (conversations: Conversation[]) => {
     listCoversations.value = conversations;
