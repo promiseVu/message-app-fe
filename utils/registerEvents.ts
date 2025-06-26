@@ -9,8 +9,13 @@ export default function registerEvents(socket: any) {
     console.log("Socket disconnected");
   });
 
-  socket.on("receivedMessage", (data: any) => {
-    console.log("Received message", data);
-    messageStore.receivedMessage(data);
+  socket.on("receivedMessage", (payload: any) => {
+    console.log("Received message", payload);
+    messageStore.receivedMessage(payload);
+  });
+
+  socket.on("onlineUsers", (payload: string[]) => {
+    console.log("User online status changed", payload);
+    messageStore.setUserOnline(payload);
   });
 }

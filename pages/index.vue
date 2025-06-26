@@ -1,5 +1,5 @@
 <script lang="ts" setup>
-import type { Conversation } from '~/types/conversation';
+import type { Conversation } from "~/types/conversation";
 
 definePageMeta({
   requireAuth: true,
@@ -9,10 +9,9 @@ const messageStore = useMessageStore();
 const router = useRouter();
 const auth = useAuthentication();
 
-const { data, pending } = useFetch(
+const { data, pending } = useLazyFetch(
   `/api/conversation/${auth.value.userData?._id}`
 );
-const searchQuery = ref("");
 
 function navigateConversation(id: string) {
   messageStore.joinConversation(id);
@@ -26,27 +25,36 @@ function getLastMessageTime(conversationId: string) {
   return times[conversationId.length % times.length];
 }
 
-// Mock function to check if conversation has unread messages
-function hasUnreadMessages(conversationId: string) {
-  // Using conversationId for consistent results
-  return conversationId.length % 3 === 0;
-}
-
-// Mock function to get unread count
-function getUnreadCount(conversationId: string) {
-  // Using conversationId for consistent results
-  return (conversationId.length % 5) + 1;
-}
-
-// Mock function to check if user is online
-function isUserOnline(conversationId: string) {
-  // Using conversationId for consistent results
-  return conversationId.length % 2 === 0;
-}
+const isUserOnline = computed(() => {
+  return (conversation: Conversation) => {
+    const user = getReceiver(conversation);
+    return user && messageStore.onlineUsers.includes(user?.user._id);
+  };
+});
 
 function getConversationName(conversation: Conversation) {
-    const user =  conversation.members.find((member) => member.user._id !== auth.value.userData?._id)
-    return `${user?.user.lastName} ${user?.user.firstName}`;
+  const user = getReceiver(conversation);
+  return `${user?.user.lastName} ${user?.user.firstName}`;
+}
+
+const getLastMessage = computed(() => {
+  return (conversation: Conversation) => {
+    const sender =
+      conversation.lastMessage?.sender._id === auth.value.userData?._id
+        ? "You"
+        : `${conversation.lastMessage?.sender?.firstName} ${conversation.lastMessage?.sender?.lastName}`;
+    return `${sender}: ${conversation.lastMessage?.content}`;
+  };
+});
+
+function getReceiver(conversation: Conversation) {
+  return conversation.members.find(
+    (member) => member.user._id !== auth.value.userData?._id
+  );
+}
+
+function getUrlAvatar(conversation: Conversation) {
+  return conversation.members[0].user.avatar || "/default-avatar.svg";
 }
 
 watch(
@@ -55,6 +63,16 @@ watch(
     messageStore.setListCoversations(newData);
   },
   { immediate: true }
+);
+
+// Make sure we're watching the reactive store property
+watch(
+  () => messageStore.listCoversations,
+  (newConversations) => {
+    // This will trigger when the conversation list changes
+    console.log("Conversations updated", newConversations);
+  },
+  { deep: true } // Add deep watching to detect nested changes
 );
 </script>
 <template lang="html">
@@ -77,18 +95,18 @@ watch(
         v-for="conversation in messageStore.listCoversations"
         :key="conversation._id"
         @click="navigateConversation(conversation._id)"
+        :class="{ 'bg-gray-100': conversation.unreadCount > 0 }"
         class="flex items-center px-4 py-3 hover:bg-gray-50 cursor-pointer transition-colors border-b border-gray-100 last:border-b-0"
       >
-      {{ console.log(conversation) }}
         <!-- Avatar with Online Status -->
         <div class="relative mr-3">
           <nuxt-img
             class="w-14 h-14 rounded-full object-cover"
-            src="/avatar.jpg"
+            :src="getUrlAvatar(conversation)"
             :alt="`Conversation ${conversation._id}`"
           />
           <div
-            v-if="isUserOnline(conversation._id)"
+            v-if="isUserOnline(conversation)"
             class="absolute bottom-0 right-0 w-4 h-4 bg-green-500 border-2 border-white rounded-full"
           ></div>
         </div>
@@ -105,16 +123,19 @@ watch(
           </div>
 
           <div class="flex items-center justify-between">
-            <p class="text-sm text-gray-600 truncate">
-              {{ conversation.lastMessage?.content }}
+            <p
+              class="text-xs text-black truncate"
+              :class="{ 'font-semibold': conversation.unreadCount > 0 }"
+            >
+              {{ getLastMessage(conversation) }}
             </p>
 
             <!-- Unread Badge -->
             <div
-              v-if="hasUnreadMessages(conversation._id)"
+              v-if="conversation.unreadCount"
               class="bg-blue-500 text-white text-xs rounded-full w-5 h-5 flex items-center justify-center flex-shrink-0 ml-2"
             >
-              {{ getUnreadCount(conversation._id) }}
+              {{ conversation.unreadCount }}
             </div>
           </div>
         </div>

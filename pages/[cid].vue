@@ -15,20 +15,32 @@ const messagesContainer = ref<HTMLElement>();
 
 // Get conversation ID
 const conversationId = computed(() => route.params.cid as string);
+const conversation = computed(() => {
+  return messageStore.listCoversations?.find(
+    (conversation) => conversation._id === conversationId.value
+  );
+});
 
 // Get messages for this conversation
 const messages = computed(
   () => messageStore.conversationCache.get(conversationId.value) || []
 );
 
-// Get conversation name (you can enhance this with actual conversation data)
 const conversationName = computed(() => {
-  return `Conversation ${conversationId.value.slice(-6)}`;
+  const user = conversation.value?.members.find(
+    (member) => member.user._id !== auth.value.userData?._id
+  );
+  return `${user?.user.lastName} ${user?.user.firstName}`;
 });
 
-// Check if user is online (mock function - replace with real data)
 const isContactOnline = computed(() => {
-  return conversationId.value.length % 2 === 0;
+  const conversation = messageStore.listCoversations?.find(
+    (conversation) => conversation._id === conversationId.value
+  );
+  const user = conversation?.members.find(
+    (member) => member.user._id !== auth.value.userData?._id
+  );
+  return user && messageStore.onlineUsers.includes(user?.user._id);
 });
 
 // Send message function
@@ -71,7 +83,11 @@ function isMyMessage(message: Message) {
 
 // Get sender name
 function getSenderName(message: Message) {
-  return `${message.sender.firstName} ${message.sender.lastName}`;
+  return `${message.sender.lastName} ${message.sender.firstName}`;
+}
+
+function handleFocus() {
+  messageStore.handleFocusEvent(conversationId.value);
 }
 
 // Auto-scroll to bottom when new messages arrive
@@ -87,7 +103,6 @@ watch(
 
 // Scroll to bottom on mount
 onMounted(() => {
-  messageStore.currentConversationId = conversationId.value;
   nextTick(() => {
     scrollToBottom();
   });
@@ -237,6 +252,7 @@ onMounted(() => {
           <input
             v-model="text"
             @keydown.enter="sendMessage"
+            @focus="handleFocus"
             type="text"
             placeholder="Type a message..."
             class="w-full px-4 py-2 bg-gray-100 rounded-full border-none outline-none focus:bg-white focus:ring-2 focus:ring-blue-500 transition-all text-sm"

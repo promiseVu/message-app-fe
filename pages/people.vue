@@ -7,6 +7,7 @@ definePageMeta({
 
 const router = useRouter();
 const auth = useAuthentication();
+const messageStore = useMessageStore();
 const searchQuery = ref("");
 
 // Fetch users from API
@@ -38,7 +39,7 @@ function getUserAvatar(user: User) {
 
 // Check if user is online (mock function - replace with real data)
 function isUserOnline(userId: string) {
-  return userId.length % 2 === 0;
+  return messageStore.onlineUsers.includes(userId);
 }
 
 // Start conversation with user
