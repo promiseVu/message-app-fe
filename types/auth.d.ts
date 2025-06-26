@@ -2,7 +2,6 @@ export interface AuthResponse {
   accessToken: string;
   userInfo: UserInfo;
 }
-
 export interface UserInfo {
   _id: string;
   email: string;
@@ -17,4 +16,13 @@ export interface RegisterType {
   confirmPassword: string;
   firstName: string;
   lastName: string;
+}
+
+export interface InfoExtractToken {
+  _id: string;
+  email: string;
+  firstName: string;
+  lastName: string;
+  exp: number;
+  iat: number;
 }
