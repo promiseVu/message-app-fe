@@ -6,6 +6,7 @@ export const useMessageStore = defineStore("useMessageStore", () => {
   const listCoversations = ref<Conversation[]>([]);
   const conversationCache = reactive(new Map<string, Message[]>());
   const onlineUsers = ref<string[]>([]);
+  const currentConversation = ref<string | null>(null);
   const socket = computed(() => useNuxtApp().$socket.value);
 
   const setListCoversations = (conversations: Conversation[]) => {
@@ -22,16 +23,19 @@ export const useMessageStore = defineStore("useMessageStore", () => {
         "joinConversation",
         { conversationId },
         (response: any) => {
-          console.log("response", response);
           setCoversationCache(conversationId, response.data);
         }
       );
-      const index = listCoversations.value?.findIndex(
-        (conversation) => conversation._id === conversationId
-      );
-      if (index !== -1) {
-        listCoversations.value[index].unreadCount = 0;
-      }
+      // updateUnreadCount(conversationId);
+    }
+  };
+
+  const updateUnreadCount = (conversationId: string) => {
+    const index = listCoversations.value?.findIndex(
+      (conversation) => conversation._id === conversationId
+    );
+    if (index !== -1) {
+      listCoversations.value[index].unreadCount = 0;
     }
   };
 
@@ -49,8 +53,6 @@ export const useMessageStore = defineStore("useMessageStore", () => {
   };
 
   const receivedMessage = (message: { status: string; data: Message }) => {
-    console.log("Received data", message);
-    // Update message in conversation
     const listMessage = conversationCache.get(message.data.conversation);
     if (listMessage) {
       listMessage.push(message.data);
@@ -74,7 +76,7 @@ export const useMessageStore = defineStore("useMessageStore", () => {
         listCoversations.value.unshift(conversationWithNewMessage);
       }
       // Update unread count for received
-      if (message.data.sender !== auth.value.userData._id) {
+      if (message.data.sender._id !== auth.value.userData._id) {
         listCoversations.value[conversationIndex].unreadCount++;
       }
     }
@@ -85,6 +87,7 @@ export const useMessageStore = defineStore("useMessageStore", () => {
   };
 
   const handleFocusEvent = (conversationId: string) => {
+    updateUnreadCount(conversationId);
     if (socket?.value) {
       socket.value.emit("focusInput", {
         conversationId,
@@ -102,5 +105,7 @@ export const useMessageStore = defineStore("useMessageStore", () => {
     receivedMessage,
     setUserOnline,
     handleFocusEvent,
+    currentConversation,
+    updateUnreadCount,
   };
 });
