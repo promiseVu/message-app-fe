@@ -46,7 +46,7 @@ export const useAxiosProxy = (options: AxiosOptions = {}): AxiosInstance => {
       if (ENVIRONMENT === "development") {
         console.log("Response:", response.data);
       }
-      return response;
+      return response.data;
     },
     (error) => {
       if (ENVIRONMENT === "development") {

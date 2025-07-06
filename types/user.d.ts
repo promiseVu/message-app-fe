@@ -3,9 +3,12 @@ export interface User {
   email: string;
   firstName: string;
   lastName: string;
-  password: string;
+  password?: string;
   isVerified: boolean;
   avatar?: string;
-  createdAt: string;
-  updatedAt: string;
+  createdAt?: string;
+  updatedAt?: string;
+  friends?: User[];
+  pendingRequest?: User[];
+  sentRequests?: User[];
 }
